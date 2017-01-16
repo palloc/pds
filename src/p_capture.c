@@ -10,15 +10,26 @@
  
 
 typedef struct {
-	int proto;
-	int tos;
-	int id;
+	int duration;
+	int ip_proto;
+	int service;
+	int src_bytes;
+	int dst_bytes;
+	int flag;
+	int land;
+	int wrong_fragment;
+	int urgent;
+
+	int hot;
+	int num_failed_logins;
 } a_packet;
 
 int main()
 {
 	int sock_raw;
-    int saddr_size , data_size, i=0, j=0;
+    int saddr_size , data_size;
+	int i=0, j=0;
+
     struct sockaddr saddr;
     struct in_addr in;
 
