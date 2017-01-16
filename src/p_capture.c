@@ -8,22 +8,22 @@
 #include<sys/socket.h>
 #include<arpa/inet.h>
  
-int sock_raw;
-FILE *logfile;
-int tcp=0, udp=0, icmp=0, others=0, igmp=0, total=0, i, j;
-struct sockaddr_in source, dest;
- 
+
+typedef struct {
+	int proto;
+	int tos;
+	int id;
+} a_packet;
+
 int main()
 {
-    int saddr_size , data_size;
+	int sock_raw;
+    int saddr_size , data_size, i=0, j=0;
     struct sockaddr saddr;
     struct in_addr in;
 
 	// Make buffer
     unsigned char *buffer = (unsigned char *)malloc(65536);
-
-     
-    logfile=fopen("log.txt","w");
 
     //Create a raw socket that shall sniff
     sock_raw = socket(AF_INET , SOCK_RAW , IPPROTO_TCP);
@@ -37,15 +37,17 @@ int main()
 	//sniff packet
     while(i<10)
     {
+		j=0;
 		i++;
         saddr_size = sizeof saddr;
         //Receive a packet
         data_size = recvfrom(sock_raw, buffer, 65536, 0, &saddr, &saddr_size);
 		struct iphdr *ip_hdr = (struct iphdr*)buffer;
-		printf("%d", ip_hdr->protocol);
-		
+		for(j; j < 1000; ++j){
+			printf("%d", *(buffer+j));
+		}
+		printf("\n");
     }
-    close(sock_raw);
     printf("Finished");
     return 0;
 }
