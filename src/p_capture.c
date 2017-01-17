@@ -1,15 +1,11 @@
 #include <stdio.h> //For standard things
 #include <stdlib.h>    //malloc
 #include <string.h>    //memset
-#include <netinet/ip_icmp.h>   //Provides declarations for icmp header
-#include <netinet/udp.h>   //Provides declarations for udp header
-#include <netinet/tcp.h>   //Provides declarations for tcp header
-#include <netinet/ip.h>    //Provides declarations for ip header
 #include <linux/if_ether.h>
 #include<sys/socket.h>
 #include<arpa/inet.h>
- 
 
+// packet property
 typedef struct {
 	int duration;
 	int protocol_type;
