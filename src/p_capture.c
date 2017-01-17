@@ -87,14 +87,11 @@ int main()
 	//sniff packet
     while(i<1)
     {
-		j=0;
-		i++;
         saddr_size = sizeof saddr;
         //Receive a packet
-        data_size = recvfrom(sock_raw, buffer, 65536, 0, &saddr, &saddr_size);
+        data_size = recvfrom(sock_raw, buffer, 1024, 0, &saddr, &saddr_size);
 		struct ethhdr *eth_hdr = (struct ethhdr*)buffer;		
-		fwrite(buffer, sizeof(unsigned char), 1000, fp);
-		printf("%x\n", eth_hdr->h_dest);
+		fwrite(buffer, sizeof(unsigned char), 1024, fp);
     }
 	close(fp);
     printf("Finished");
