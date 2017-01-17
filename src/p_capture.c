@@ -1,10 +1,11 @@
-#include<stdio.h> //For standard things
-#include<stdlib.h>    //malloc
-#include<string.h>    //memset
-#include<netinet/ip_icmp.h>   //Provides declarations for icmp header
-#include<netinet/udp.h>   //Provides declarations for udp header
-#include<netinet/tcp.h>   //Provides declarations for tcp header
-#include<netinet/ip.h>    //Provides declarations for ip header
+#include <stdio.h> //For standard things
+#include <stdlib.h>    //malloc
+#include <string.h>    //memset
+#include <netinet/ip_icmp.h>   //Provides declarations for icmp header
+#include <netinet/udp.h>   //Provides declarations for udp header
+#include <netinet/tcp.h>   //Provides declarations for tcp header
+#include <netinet/ip.h>    //Provides declarations for ip header
+#include <linux/if_ether.h>
 #include<sys/socket.h>
 #include<arpa/inet.h>
  
@@ -53,21 +54,34 @@ typedef struct {
 	int dst_host_srv_rerror_rate;
 } a_packet;
 
+
+int d_to_b(int decimal){
+	int binary = 0;
+	int base = 1;
+
+	while(decimal>0){
+		binary = binary + ( decimal % 2 ) * base;
+		decimal = decimal / 2;
+		base = base * 10;
+	}
+	return binary;
+}
+	
 int main()
 {
+	FILE *fp;
+	fp = fopen("log.txt", "wb+");
 	int sock_raw;
     int saddr_size , data_size;
 	int i=0, j=0;
-
     struct sockaddr saddr;
     struct in_addr in;
-
 	// Make buffer
     unsigned char *buffer = (unsigned char *)malloc(65536);
 
     //Create a raw socket that shall sniff
-    sock_raw = socket(AF_INET , SOCK_RAW , IPPROTO_TCP);
-
+    sock_raw = socket(PF_PACKET , SOCK_RAW , htons(ETH_P_ALL));
+	// Error process
     if(sock_raw < 0)
     {
         printf("Socket Error\n");
@@ -75,19 +89,18 @@ int main()
     }
 
 	//sniff packet
-    while(i<10)
+    while(i<1)
     {
 		j=0;
 		i++;
         saddr_size = sizeof saddr;
         //Receive a packet
         data_size = recvfrom(sock_raw, buffer, 65536, 0, &saddr, &saddr_size);
-		struct iphdr *ip_hdr = (struct iphdr*)buffer;
-		for(j; j < 1000; ++j){
-			printf("%d", *(buffer+j));
-		}
-		printf("\n");
+		struct ethhdr *eth_hdr = (struct ethhdr*)buffer;		
+		fwrite(buffer, sizeof(unsigned char), 1000, fp);
+		printf("%x\n", eth_hdr->h_dest);
     }
+	close(fp);
     printf("Finished");
     return 0;
 }
