@@ -1,9 +1,8 @@
 #include <stdio.h> //For standard things
 #include <stdlib.h>    //malloc
 #include <string.h>    //memset
-#include <linux/if_ether.h>
-#include<sys/socket.h>
-#include<arpa/inet.h>
+#include <net/if.h>
+#include <net/ethernet.h>
 
 // packet property
 typedef struct {
@@ -50,7 +49,14 @@ typedef struct {
 	int dst_host_srv_rerror_rate;
 } a_packet;
 
+// print mac address
+char *mac_ntoa(u_char *d){
+	static char str[18];
+	sprintf(str,"%02x:%02x:%02x:%02x:%02x:%02x",d[0],d[1],d[2],d[3],d[4],d[5]);
+	return str;
+}
 
+// convert decimal to binary
 int d_to_b(int decimal){
 	int binary = 0;
 	int base = 1;
@@ -66,17 +72,16 @@ int d_to_b(int decimal){
 int main()
 {
 	FILE *fp;
-	fp = fopen("log.txt", "wb+");
+	fp = fopen("log.pcap", "wb");
 	int sock_raw;
     int saddr_size , data_size;
 	int i=0, j=0;
     struct sockaddr saddr;
-    struct in_addr in;
 	// Make buffer
     unsigned char *buffer = (unsigned char *)malloc(65536);
 
     //Create a raw socket that shall sniff
-    sock_raw = socket(PF_PACKET , SOCK_RAW , htons(ETH_P_ALL));
+    sock_raw = socket(PF_PACKET ,SOCK_RAW ,htons(ETH_P_ALL));
 	// Error process
     if(sock_raw < 0)
     {
@@ -87,13 +92,16 @@ int main()
 	//sniff packet
     while(i<1)
     {
-        saddr_size = sizeof saddr;
-        //Receive a packet
-        data_size = recvfrom(sock_raw, buffer, 1024, 0, &saddr, &saddr_size);
-		struct ethhdr *eth_hdr = (struct ethhdr*)buffer;		
-		fwrite(buffer, sizeof(unsigned char), 1024, fp);
+		i++;
+		//Receive a packet
+        read(sock_raw, buffer, sizeof(buffer));
+		struct ether_header *eth_hdr = (struct ether_header *)buffer;
+		printf("----------- ETHERNET -----------\n");
+		printf("Dst MAC addr   : %17s \n",mac_ntoa(eth_hdr->ether_dhost));
+		printf("Src MAC addr   : %17s \n",mac_ntoa(eth_hdr->ether_shost));
+		printf("Ethernet Type  : 0x%04x\n",ntohs(eth_hdr->ether_type));
     }
-	close(fp);
+
     printf("Finished");
     return 0;
 }
