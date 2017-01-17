@@ -69,8 +69,7 @@ int d_to_b(int decimal){
 	return binary;
 }
 	
-int main()
-{
+int main(){
 	FILE *fp;
 	fp = fopen("log.pcap", "wb");
 	int sock_raw;
@@ -83,20 +82,17 @@ int main()
     //Create a raw socket that shall sniff
     sock_raw = socket(PF_PACKET ,SOCK_RAW ,htons(ETH_P_ALL));
 	// Error process
-    if(sock_raw < 0)
-    {
+    if(sock_raw < 0){
         printf("Socket Error\n");
         return 1;
     }
 
 	//sniff packet
-    while(i<1)
-    {
+    while(i < 1){
 		i++;
 		//Receive a packet
         read(sock_raw, buffer, sizeof(buffer));
 		struct ether_header *eth_hdr = (struct ether_header *)buffer;
-		printf("----------- ETHERNET -----------\n");
 		printf("Dst MAC addr   : %17s \n",mac_ntoa(eth_hdr->ether_dhost));
 		printf("Src MAC addr   : %17s \n",mac_ntoa(eth_hdr->ether_shost));
 		printf("Ethernet Type  : 0x%04x\n",ntohs(eth_hdr->ether_type));
