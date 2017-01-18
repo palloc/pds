@@ -93,9 +93,20 @@ int main(){
 		//Receive a packet
         read(sock_raw, buffer, sizeof(buffer));
 		struct ether_header *eth_hdr = (struct ether_header *)buffer;
-		printf("Dst MAC addr   : %17s \n",mac_ntoa(eth_hdr->ether_dhost));
-		printf("Src MAC addr   : %17s \n",mac_ntoa(eth_hdr->ether_shost));
-		printf("Ethernet Type  : 0x%04x\n",ntohs(eth_hdr->ether_type));
+
+		switch(ntohs(eth->ether_type)){
+		//ip packet
+		case ETH_P_IP:
+			break;
+		//ipv6 packet
+		case ETH_P_IPV6:
+			break;
+		//arp packet
+		case ETH_P_ARP:
+			break;
+		default:
+			break;
+			
     }
 
     printf("Finished");
