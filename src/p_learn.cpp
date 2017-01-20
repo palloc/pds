@@ -1,11 +1,12 @@
 #include <iostream>
 #include <string>
+#include <assert.h>
+
 // Number of property
 #define PNUM 23
 // Calc size of array
 #define ARRAY_LEN(Z) (sizeof(Z) / sizeof((Z)[0]))
 
-using namespace std;
 
 // Keep packet property
 class P_property{
@@ -19,12 +20,17 @@ public:
 
 	// Input data
 	void Input_data(int value[]){
-		for(i = 0; i < ARRAY_LEN(value); ++i){
-			property[i] = value[i];
+		// Error transaction
+		if(ARRAY_LEN(value) != PNUM){
+			std::cout << "Invalid input length." << std::endl;
+			assert(-1);
+		}else{
+			// Store input data to property
+			for(i = 0; i < ARRAY_LEN(value); ++i){
+				property[i] = value[i];
+			}
 		}
 	}
-			
-
 };
 
 
