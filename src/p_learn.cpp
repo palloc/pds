@@ -1,27 +1,39 @@
 #include <iostream>
 #include <string>
+// Number of property
 #define PNUM 23
-#define 
+// Calc size of array
+#define ARRAY_LEN(Z) (sizeof(Z) / sizeof((Z)[0]))
+
 using namespace std;
 
 // Keep packet property
 class P_property{
 protected:
 	int property[PNUM];
+
 public:
 	P_property(){
-		property[0] = 10;
+		property[0] = {};
 	}
-	~P_property(){}
+
+	// Input data
+	void Input_data(int value[]){
+		for(i = 0; i < ARRAY_LEN(value); ++i){
+			property[i] = value[i];
+		}
+	}
+			
+
 };
 
 
-class AllData : public P_property{
-private:
-	int 
+// Data, ML_Function
+class Kmeans : public P_property{
 public:
-	AllData() : P_property(){}
-	~AllData(){}
+	Kmeans() : P_property(){}
+
+};
 	
 
 int main(int argc, char **argv){
