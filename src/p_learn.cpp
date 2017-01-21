@@ -1,6 +1,10 @@
 #include <iostream>
 #include <string>
 #include <assert.h>
+#include <net/if.h>
+#include <net/ethernet.h>
+
+
 
 // Number of property
 #define PNUM 23
@@ -38,7 +42,9 @@ public:
 class Kmeans : public P_property{
 public:
 	Kmeans() : P_property(){}
-
+	// Read raw packet
+	void ReadPacket(unsigne){
+	}
 };
 	
 
