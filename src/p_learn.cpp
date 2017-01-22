@@ -43,8 +43,21 @@ class Kmeans : public P_property{
 public:
 	Kmeans() : P_property(){}
 	// Read raw packet
-	void ReadPacket(unsigne){
+	void ReadPacket(unsigned char *buffer){
+		struct ether_header *eth_hdr = (struct ether_header *)buffer;
+		switch(ntohs(eth_hdr->ether_type)){
+		// ip packet
+		case ETH_P_IP:
+			break;
+		// ipv6 paceket
+		case ETH_P_IPV6:
+			break;
+		// ARP packet
+		case ETH_P_ARP:
+			break;
 	}
+
+
 };
 	
 
