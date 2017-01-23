@@ -45,11 +45,9 @@ public:
 	// Read raw packet
 	void ReadPacket(unsigned char *buffer){
 		struct ether_header *eth_hdr = (struct ether_header *)buffer;
-		std::cout << ntohs(eth_hdr->ether_type) << std::endl;
 		switch(ntohs(eth_hdr->ether_type)){
-
 		// ip packet
-		case 0:
+		case 2048:
 		{
 			struct iphdr *ip_hdr = (struct iphdr *)buffer;
 			std::cout << ip_hdr->protocol << std::endl;
@@ -71,6 +69,7 @@ public:
 
 		default:
 		{
+			std::cout << "none." << std::endl;
 			break;
 		}
 		}
@@ -83,8 +82,7 @@ int main(int argc, char **argv){
 	int sock_raw;
 	int saddr_size, data_size;
 	struct sockaddr saddr;
-	unsigned char *buffer;
-	buffer = new unsigned char[65536];
+	unsigned char buffer[65535];
 
 	// Create a raw socket that shall sniff
 	sock_raw = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
@@ -98,6 +96,5 @@ int main(int argc, char **argv){
 		read(sock_raw, buffer, sizeof(buffer));
 		A.ReadPacket(buffer);
 	}
-	delete[] buffer;
 	return 0;
 }

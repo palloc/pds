@@ -77,7 +77,7 @@ int main(){
 	int i=0, j=0;
     struct sockaddr saddr;
 	// Make buffer
-    unsigned char *buffer = (unsigned char *)malloc(65536);
+    unsigned char buffer[65535];
 
     //Create a raw socket that shall sniff
     sock_raw = socket(PF_PACKET ,SOCK_RAW ,htons(ETH_P_ALL));
@@ -88,13 +88,17 @@ int main(){
     }
 
 	//sniff packet
-    while(i < 1){
+    while(1){
 		i++;
 		//Receive a packet
         read(sock_raw, buffer, sizeof(buffer));
 		struct ether_header *eth_hdr = (struct ether_header *)buffer;
-
-		switch(ntohs(eth->ether_type)){
+		printf("----------- ETHERNET -----------\n");
+		printf("Dst MAC addr   : %17s \n",mac_ntoa(eth_hdr->ether_dhost));
+		printf("Src MAC addr   : %17s \n",mac_ntoa(eth_hdr->ether_shost));
+		printf("Ethernet Type  : 0x%04x\n",ntohs(eth_hdr->ether_type));
+		sleep(1);
+		switch(ntohs(eth_hdr->ether_type)){
 		//ip packet
 		case ETH_P_IP:
 			break;
@@ -107,7 +111,8 @@ int main(){
 		default:
 			break;
 			
-    }
+		}
+	}
 
     printf("Finished");
     return 0;
