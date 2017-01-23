@@ -3,8 +3,7 @@
 #include <assert.h>
 #include <net/if.h>
 #include <net/ethernet.h>
-
-
+#include <netinet/ip.h>
 
 // Number of property
 #define PNUM 23
@@ -30,7 +29,7 @@ public:
 			assert(-1);
 		}else{
 			// Store input data to property
-			for(i = 0; i < ARRAY_LEN(value); ++i){
+			for(int i = 0; i < ARRAY_LEN(value); ++i){
 				property[i] = value[i];
 			}
 		}
@@ -46,25 +45,46 @@ public:
 	void ReadPacket(unsigned char *buffer){
 		struct ether_header *eth_hdr = (struct ether_header *)buffer;
 		switch(ntohs(eth_hdr->ether_type)){
+
 		// ip packet
-		case ETH_P_IP:
+		case 2048:
+		{
+			struct iphdr *ip_hdr = (struct iphdr *)buffer;
+			std::cout << ip_hdr->protocol << std::endl;
 			break;
+		}
+
 		// ipv6 paceket
-		case ETH_P_IPV6:
+		case 34525:
+		{
 			break;
+		}
+
 		// ARP packet
-		case ETH_P_ARP:
+		case 2054:
+		{
 			break;
+		}
+
+		default:
+		{
+			break;
+		}
+		}
 	}
-
-
 };
 	
 
 int main(int argc, char **argv){
-	P_property A;
+	Kmeans A;
+	int sock_raw;
+	int saddr_size, data_size;
+	struct sockaddr saddr;
+	unsigned char *buffer;
+	buffer = new unsigned char[65536];
+	// Create a raw socket that shall sniff
+	sock_raw = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 	
-	cout << A.property[0] << endl;
-	A.Test();
-	cout << A.property[0] << endl;
+	
+	A.ReadPacket()
 }
