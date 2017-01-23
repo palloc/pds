@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <assert.h>
+#include <unistd.h>
 #include <net/if.h>
 #include <net/ethernet.h>
 #include <netinet/ip.h>
@@ -44,10 +45,11 @@ public:
 	// Read raw packet
 	void ReadPacket(unsigned char *buffer){
 		struct ether_header *eth_hdr = (struct ether_header *)buffer;
+		std::cout << ntohs(eth_hdr->ether_type) << std::endl;
 		switch(ntohs(eth_hdr->ether_type)){
 
 		// ip packet
-		case 2048:
+		case 0:
 		{
 			struct iphdr *ip_hdr = (struct iphdr *)buffer;
 			std::cout << ip_hdr->protocol << std::endl;
@@ -57,6 +59,7 @@ public:
 		// ipv6 paceket
 		case 34525:
 		{
+
 			break;
 		}
 
@@ -82,9 +85,19 @@ int main(int argc, char **argv){
 	struct sockaddr saddr;
 	unsigned char *buffer;
 	buffer = new unsigned char[65536];
+
 	// Create a raw socket that shall sniff
 	sock_raw = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-	
-	
-	A.ReadPacket()
+	// Error process
+	if(sock_raw < 0){
+		std::cout << "Socket error." << std::endl;
+		return 1;
+	}
+
+	for(int i = 0; i < 1; ++i){
+		read(sock_raw, buffer, sizeof(buffer));
+		A.ReadPacket(buffer);
+	}
+	delete[] buffer;
+	return 0;
 }
