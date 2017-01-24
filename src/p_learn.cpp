@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 #include <assert.h>
 #include <unistd.h>
 #include <net/if.h>
@@ -15,33 +16,42 @@
 #define ARRAY_LEN(Z) (sizeof(Z) / sizeof((Z)[0]))
 
 
-// Keep packet property
-class P_property{
-protected:
-	int property[PNUM];
-public:
-	P_property(){}
 
-	// Input data
-	void Input_data(int *value){
-		// Error handling
-		if(ARRAY_LEN(value) != PNUM){
-			std::cout << "Invalid input length." << std::endl;
-			assert(-1);
-		}else{
-			// Store input data to property
-			for(int i = 0; i < ARRAY_LEN(value); ++i){
-				property[i] = value[i];
+// Hold property array
+class P_Array{
+
+	class P_Property{
+		int property[PNUM];
+	public:
+		// Input data
+		void Input_data(int *value){
+			// Error handling
+			if(ARRAY_LEN(value) != PNUM){
+				std::cout << "Invalid input length." << std::endl;
+				assert(-1);
+			}else{
+				// Store input data to property
+				for(int i = 0; i < ARRAY_LEN(value); ++i){
+					property[i] = value[i];
+				}
 			}
 		}
-	}
+
+		int* Read_data(){
+			return property;
+		}
+	};
+
+protected:
+	P_Property Packet[1000];
+public:
+	P_Array(){}
 };
 
-
 // Data, ML_Function
-class P_Analytics : public P_property{
+class P_Analytics : public P_Array{
 public:
-	P_Analytics() : P_property(){}
+	P_Analytics() : P_Array(){}
 
 	// Read TCP packet
 	void ReadTCP(unsigned char *buffer){
