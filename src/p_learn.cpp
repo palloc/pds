@@ -12,15 +12,13 @@
 // Calc size of array
 #define ARRAY_LEN(Z) (sizeof(Z) / sizeof((Z)[0]))
 
-int flag=0;
+
 // Keep packet property
 class P_property{
 protected:
 	int property[PNUM];
-
 public:
-	P_property(){
-	}
+	P_property(){}
 
 	// Input data
 	void Input_data(int *value){
@@ -43,6 +41,7 @@ class P_Analytics : public P_property{
 public:
 	P_Analytics() : P_property(){}
 
+	// Read IPv4 packet
 	void ReadIPv4(unsigned char *buffer){
 		struct iphdr *ip_hdr = (struct iphdr *)buffer;
 		printf("----------- IP -----------\n");
@@ -55,6 +54,7 @@ public:
 		printf("protocol=%u\n",ip_hdr -> protocol);
 	}
 
+	// Read arp packet  
 	void ReadARP(unsigned char *buffer){
 		struct ether_arp *arp_hdr = (struct ether_arp *)buffer;
 		printf("----------- ARP ----------\n");
@@ -86,7 +86,6 @@ public:
 		case 2054:
 		{
 			ReadARP(buffer + sizeof(struct ether_header));
-			flag = 1;
 			break;
 		}
 
@@ -109,17 +108,16 @@ int main(int argc, char **argv){
 
 	// Create a raw socket that shall sniff
 	sock_raw = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+
 	// Error handling
 	if(sock_raw < 0){
-		std::cout << "Socket error." << std::endl;
-		return 1;
+		std::cout << "Socket error." << std::endl << "Must be sudoers." << std::endl;
+		assert(-1);
 	}
 
-	for(int i = 0; i > -1; ++i){
+	for(int i = 0; i < 1; ++i){
 		read(sock_raw, buffer, sizeof(buffer));
 		A.ReadPacket(buffer);
-		if(flag == 1) break;
-		sleep(0.5);
 	}
 	return 0;
 }
