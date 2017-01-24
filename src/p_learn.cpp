@@ -56,21 +56,25 @@ public:
 // Data, ML_Function
 class P_Analytics : public P_Property{
 public:
+
 	P_Analytics() : P_Property(){}
+
+
 
 	// Read TCP packet
 	void ReadTCP(unsigned char *buffer){
 		struct tcphdr *tcp_hdr = (struct tcphdr *)buffer;
-		printf("----------- TCP ----------\n");
-		printf("src port = %u\n",ntohs(tcp_hdr -> source));
-		printf("dst port = %u\n",ntohs(tcp_hdr -> dest));
-		InputData()
+		// Input TCP header information
+		InputData(OTCP_SPORT, ntohs(tcp_hdr->source));
+		InputData(OTCP_DPORT, ntohs(tcp_hdr->dest));
 	}
+
+
 		
 	// Read IPv4 packet
 	void ReadIPv4(unsigned char *buffer){
 		struct iphdr *ip_hdr = (struct iphdr *)buffer;
-		printf("----------- IP -----------\n");
+		// Input IP header information
 		InputData(OIP_PROTO, ip_hdr -> protocol);
 		InputData(OIP_TTL, ip_hdr -> ttl);
 		InputData(OIP_TLEN, ntohs(ip_hdr -> tot_len));
@@ -91,6 +95,8 @@ public:
 		}
 	}
 
+
+
 	// Read arp packet  
 	void ReadARP(unsigned char *buffer){
 		struct ether_arp *arp_hdr = (struct ether_arp *)buffer;
@@ -102,22 +108,28 @@ public:
 		printf("arp_op=%u\n",ntohs(arp_hdr -> arp_op));
 	}
 
+
+
 	// Read raw packet
 	void ReadPacket(unsigned char *buffer){
 		struct ether_header *eth_hdr = (struct ether_header *)buffer;
+
 		switch(ntohs(eth_hdr->ether_type)){
+
 		// ip packet
 		case 2048:
 		{
 			ReadIPv4(buffer + sizeof(struct ether_header));
 			break;
 		}
+
 		// ARP packet
 		case 2054:
 		{
 			ReadARP(buffer + sizeof(struct ether_header));
 			break;
 		}
+
 		default:
 		{
 			std::cout << "none." << std::endl;
@@ -129,7 +141,7 @@ public:
 
 
 int main(int argc, char **argv){
-	P_Analytics A;
+	P_Analytics Packet;
 	int sock_raw;
 	int saddr_size, data_size;
 	struct sockaddr saddr;
@@ -147,7 +159,7 @@ int main(int argc, char **argv){
 	// Main loop
 	for(int i = 0; i < 1; ++i){
 		read(sock_raw, buffer, sizeof(buffer));
-		A.ReadPacket(buffer);
+		Packet.ReadPacket(buffer);
 	}
 	return 0;
 }
