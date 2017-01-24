@@ -6,6 +6,8 @@
 #include <net/ethernet.h>
 #include <netinet/ip.h>
 #include <netinet/if_ether.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
 
 // Number of property
 #define PNUM 23
@@ -41,6 +43,14 @@ class P_Analytics : public P_property{
 public:
 	P_Analytics() : P_property(){}
 
+	// Read TCP packet
+	void ReadTCP(unsigned char *buffer){
+		struct tcphdr *tcp_hdr = (struct tcphdr *)buffer;
+		printf("----------- TCP ----------\n");
+		printf("src port = %u\n",ntohs(tcp_hdr -> source));
+		printf("dst port = %u\n",ntohs(tcp_hdr -> dest));
+	}
+		
 	// Read IPv4 packet
 	void ReadIPv4(unsigned char *buffer){
 		struct iphdr *ip_hdr = (struct iphdr *)buffer;
@@ -52,6 +62,17 @@ public:
 		printf("id=%u\n",ntohs(ip_hdr -> id));
 		printf("ttl=%u\n",ip_hdr -> ttl);
 		printf("protocol=%u\n",ip_hdr -> protocol);
+		switch (ip_hdr -> protocol){
+		case 6:
+		{
+			ReadTCP(buffer + sizeof(struct iphdr));
+			break;
+		}
+		default:
+		{
+			break;
+		}
+		}
 	}
 
 	// Read arp packet  
@@ -75,20 +96,12 @@ public:
 			ReadIPv4(buffer + sizeof(struct ether_header));
 			break;
 		}
-
-		// ipv6 paceket
-		case 34525:
-		{
-			break;
-		}
-
 		// ARP packet
 		case 2054:
 		{
 			ReadARP(buffer + sizeof(struct ether_header));
 			break;
 		}
-
 		default:
 		{
 			std::cout << "none." << std::endl;
@@ -97,7 +110,7 @@ public:
 		}
 	}
 };
-	
+
 
 int main(int argc, char **argv){
 	P_Analytics A;
@@ -115,6 +128,7 @@ int main(int argc, char **argv){
 		assert(-1);
 	}
 
+	// Main loop
 	for(int i = 0; i < 1; ++i){
 		read(sock_raw, buffer, sizeof(buffer));
 		A.ReadPacket(buffer);
