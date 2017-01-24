@@ -17,6 +17,23 @@
 #define OIP_TOS        3
 #define OIP_FRAGOFF    4
 #define OIP_ID         5
+#define OTCP_SPORT     6
+#define OTCP_DPORT     7
+#define OTCP_SEQ       8
+#define OTCP_ACKSEQ    9
+#define OTCP_DOFF      10
+#define OTCP_CWR       11
+#define OTCP_ECE       12
+#define OTCP_URG       13
+#define OTCP_ACK       14
+#define OTCP_PSH       15
+#define OTCP_RST       16
+#define OTCP_SYN       17
+#define OTCP_FIN       18
+#define OTCP_WINDOW    19
+#define OTCP_CHECK     20
+#define OTCP_RES1      21
+#define OTCP_RES2      22
 
 
 // Calc size of array
@@ -47,6 +64,7 @@ public:
 		printf("----------- TCP ----------\n");
 		printf("src port = %u\n",ntohs(tcp_hdr -> source));
 		printf("dst port = %u\n",ntohs(tcp_hdr -> dest));
+		InputData()
 	}
 		
 	// Read IPv4 packet
