@@ -141,7 +141,7 @@ public:
 
 
 int main(int argc, char **argv){
-	P_Analytics Packet;
+	P_Analytics Packet[100];
 	int sock_raw;
 	int saddr_size, data_size;
 	struct sockaddr saddr;
@@ -157,9 +157,9 @@ int main(int argc, char **argv){
 	}
 
 	// Main loop
-	for(int i = 0; i < 1; ++i){
+	for(int i = 0; i < 100; ++i){
 		read(sock_raw, buffer, sizeof(buffer));
-		Packet.ReadPacket(buffer);
+		Packet[i].ReadPacket(buffer);
 	}
 	return 0;
 }
