@@ -12,7 +12,7 @@
 // Calc size of array
 #define ARRAY_LEN(Z) (sizeof(Z) / sizeof((Z)[0]))
 
-
+int flag=0;
 // Keep packet property
 class P_property{
 protected:
@@ -24,7 +24,7 @@ public:
 
 	// Input data
 	void Input_data(int *value){
-		// Error transaction
+		// Error handling
 		if(ARRAY_LEN(value) != PNUM){
 			std::cout << "Invalid input length." << std::endl;
 			assert(-1);
@@ -85,7 +85,8 @@ public:
 		// ARP packet
 		case 2054:
 		{
-			ReadARP(buffer + sizeof(struct ehter_header));
+			ReadARP(buffer + sizeof(struct ether_header));
+			flag = 1;
 			break;
 		}
 
@@ -108,15 +109,17 @@ int main(int argc, char **argv){
 
 	// Create a raw socket that shall sniff
 	sock_raw = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-	// Error process
+	// Error handling
 	if(sock_raw < 0){
 		std::cout << "Socket error." << std::endl;
 		return 1;
 	}
 
-	for(int i = 0; i < 1; ++i){
+	for(int i = 0; i > -1; ++i){
 		read(sock_raw, buffer, sizeof(buffer));
 		A.ReadPacket(buffer);
+		if(flag == 1) break;
+		sleep(0.5);
 	}
 	return 0;
 }
