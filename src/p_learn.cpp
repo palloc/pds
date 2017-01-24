@@ -5,6 +5,7 @@
 #include <net/if.h>
 #include <net/ethernet.h>
 #include <netinet/ip.h>
+#include <netinet/if_ether.h>
 
 // Number of property
 #define PNUM 23
@@ -19,11 +20,10 @@ protected:
 
 public:
 	P_property(){
-		property[0] = {};
 	}
 
 	// Input data
-	void Input_data(int value[]){
+	void Input_data(int *value){
 		// Error transaction
 		if(ARRAY_LEN(value) != PNUM){
 			std::cout << "Invalid input length." << std::endl;
@@ -39,9 +39,32 @@ public:
 
 
 // Data, ML_Function
-class Kmeans : public P_property{
+class P_Analytics : public P_property{
 public:
-	Kmeans() : P_property(){}
+	P_Analytics() : P_property(){}
+
+	void ReadIPv4(unsigned char *buffer){
+		struct iphdr *ip_hdr = (struct iphdr *)buffer;
+		printf("----------- IP -----------\n");
+		printf("version=%u\n",ip_hdr -> version);
+		printf("ihl=%u\n",ip_hdr -> ihl);
+		printf("tos=%x\n",ip_hdr -> tos);
+		printf("tot_len=%u\n",ntohs(ip_hdr -> tot_len));
+		printf("id=%u\n",ntohs(ip_hdr -> id));
+		printf("ttl=%u\n",ip_hdr -> ttl);
+		printf("protocol=%u\n",ip_hdr -> protocol);
+	}
+
+	void ReadARP(unsigned char *buffer){
+		struct ether_arp *arp_hdr = (struct ether_arp *)buffer;
+		printf("----------- ARP ----------\n");
+		printf("arp_hrd=%u\n",ntohs(arp_hdr -> arp_hrd));
+		printf("arp_pro=%u\n",ntohs(arp_hdr -> arp_pro));
+		printf("arp_hln=%u\n",arp_hdr -> arp_hln);
+		printf("arp_pln=%u\n",arp_hdr -> arp_pln);
+		printf("arp_op=%u\n",ntohs(arp_hdr -> arp_op));
+	}
+
 	// Read raw packet
 	void ReadPacket(unsigned char *buffer){
 		struct ether_header *eth_hdr = (struct ether_header *)buffer;
@@ -49,21 +72,20 @@ public:
 		// ip packet
 		case 2048:
 		{
-			struct iphdr *ip_hdr = (struct iphdr *)buffer;
-			std::cout << ip_hdr->protocol << std::endl;
+			ReadIPv4(buffer + sizeof(struct ether_header));
 			break;
 		}
 
 		// ipv6 paceket
 		case 34525:
 		{
-
 			break;
 		}
 
 		// ARP packet
 		case 2054:
 		{
+			ReadARP(buffer + sizeof(struct ehter_header));
 			break;
 		}
 
