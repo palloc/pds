@@ -100,7 +100,7 @@ public:
 	
 
 int main(int argc, char **argv){
-	Kmeans A;
+	P_Analytics A;
 	int sock_raw;
 	int saddr_size, data_size;
 	struct sockaddr saddr;
