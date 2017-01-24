@@ -10,48 +10,36 @@
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 
-// Number of property
-#define PNUM 23
+#define PNUM           23
+#define OIP_PROTO      0
+#define OIP_TTL        1
+#define OIP_TLEN       2
+#define OIP_TOS        3
+#define OIP_FRAGOFF    4
+#define OIP_ID         5
+
+
 // Calc size of array
 #define ARRAY_LEN(Z) (sizeof(Z) / sizeof((Z)[0]))
 
 
-
 // Hold property array
-class P_Array{
-
-	class P_Property{
-		int property[PNUM];
-	public:
-		// Input data
-		void Input_data(int *value){
-			// Error handling
-			if(ARRAY_LEN(value) != PNUM){
-				std::cout << "Invalid input length." << std::endl;
-				assert(-1);
-			}else{
-				// Store input data to property
-				for(int i = 0; i < ARRAY_LEN(value); ++i){
-					property[i] = value[i];
-				}
-			}
-		}
-
-		int* Read_data(){
-			return property;
-		}
-	};
-
+class P_Property{
 protected:
-	P_Property Packet[1000];
+	int property[PNUM];
 public:
-	P_Array(){}
+	// Input data
+	void InputData(int i, int value){
+		// Store input data to property
+		property[i] = value;
+	}
 };
 
+
 // Data, ML_Function
-class P_Analytics : public P_Array{
+class P_Analytics : public P_Property{
 public:
-	P_Analytics() : P_Array(){}
+	P_Analytics() : P_Property(){}
 
 	// Read TCP packet
 	void ReadTCP(unsigned char *buffer){
@@ -65,13 +53,13 @@ public:
 	void ReadIPv4(unsigned char *buffer){
 		struct iphdr *ip_hdr = (struct iphdr *)buffer;
 		printf("----------- IP -----------\n");
-		printf("version=%u\n",ip_hdr -> version);
-		printf("ihl=%u\n",ip_hdr -> ihl);
-		printf("tos=%x\n",ip_hdr -> tos);
-		printf("tot_len=%u\n",ntohs(ip_hdr -> tot_len));
-		printf("id=%u\n",ntohs(ip_hdr -> id));
-		printf("ttl=%u\n",ip_hdr -> ttl);
-		printf("protocol=%u\n",ip_hdr -> protocol);
+		InputData(OIP_PROTO, ip_hdr -> protocol);
+		InputData(OIP_TTL, ip_hdr -> ttl);
+		InputData(OIP_TLEN, ntohs(ip_hdr -> tot_len));
+		InputData(OIP_TOS, ip_hdr -> tos);
+		InputData(OIP_FRAGOFF, ip_hdr -> frag_off);
+		InputData(OIP_ID, ntohs(ip_hdr -> id));
+
 		switch (ip_hdr -> protocol){
 		case 6:
 		{
