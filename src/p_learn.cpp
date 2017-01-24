@@ -10,7 +10,9 @@
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 
-#define PNUM           23
+#define PROP_NUM       23
+#define PACKET_NUM     4000
+
 #define OIP_PROTO      0
 #define OIP_TTL        1
 #define OIP_TLEN       2
@@ -43,7 +45,7 @@
 // Hold property array
 class P_Property{
 protected:
-	int property[PNUM];
+	int property[PROP_NUM];
 public:
 	// Input data
 	void InputData(int i, int value){
@@ -141,7 +143,7 @@ public:
 
 
 int main(int argc, char **argv){
-	P_Analytics Packet[100];
+	P_Analytics Packet[PACKET_NUM];
 	int sock_raw;
 	int saddr_size, data_size;
 	struct sockaddr saddr;
