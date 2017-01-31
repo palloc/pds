@@ -19,6 +19,7 @@
 #define OIP_TOS        3
 #define OIP_FRAGOFF    4
 #define OIP_ID         5
+
 #define OTCP_SPORT     6
 #define OTCP_DPORT     7
 #define OTCP_SEQ       8
@@ -71,7 +72,7 @@ public:
 
 
 	// Read TCP packet
-	void read_TCP(unsigned char *buffer){
+	void input_TCP(unsigned char *buffer){
 		struct tcphdr *tcp_hdr = (struct tcphdr *)buffer;
 		// Input TCP header information
 		input_data(OTCP_SPORT, ntohs(tcp_hdr->source));
@@ -81,7 +82,7 @@ public:
 
 		
 	// Read IPv4 packet
-	void read_IPv4(unsigned char *buffer){
+	void input_IPv4(unsigned char *buffer){
 		struct iphdr *ip_hdr = (struct iphdr *)buffer;
 		// Input IP header information
 		input_data(OIP_PROTO, ip_hdr -> protocol);
@@ -94,7 +95,7 @@ public:
 		switch (ip_hdr -> protocol){
 		case 6:
 		{
-			ReadTCP(buffer + sizeof(struct iphdr));
+			input_TCP(buffer + sizeof(struct iphdr));
 			break;
 		}
 		default:
@@ -107,7 +108,7 @@ public:
 
 
 	// Read arp packet  
-	void read_ARP(unsigned char *buffer){
+	void input_ARP(unsigned char *buffer){
 		struct ether_arp *arp_hdr = (struct ether_arp *)buffer;
 		printf("----------- ARP ----------\n");
 		printf("arp_hrd=%u\n",ntohs(arp_hdr -> arp_hrd));
@@ -120,19 +121,19 @@ public:
 
 
 	// Read raw packet
-	void read_packet(unsigned char *buffer){
+	void input_packet(unsigned char *buffer){
 		struct ether_header *eth_hdr = (struct ether_header *)buffer;
 
 		switch(ntohs(eth_hdr->ether_type)){
 
 		// ip packet
 		case 2048:
-			read_IPv4(buffer + sizeof(struct ether_header));
+			input_IPv4(buffer + sizeof(struct ether_header));
 			break;
 
 		// ARP packet
 		case 2054:
-			read_ARP(buffer + sizeof(struct ether_header));
+			input_ARP(buffer + sizeof(struct ether_header));
 			break;
 
 		default:
@@ -143,11 +144,29 @@ public:
 };
 
 
-class anomaly_detection
+class anomaly_detection{
+	packet_analytics Packet[PACKET_NUM];
+public:
+	// Input data
+	void input(int i, unsigned char *buffer){
+		Packet[i].input_packet(buffer);
+	}
 
+
+	// Output data
+	int output(int i, int property){
+		return Packet[i].read_data(property);
+	}
+
+
+	// K-means
+	void K_means(){
+	}
+};
+	
 
 int main(int argc, char **argv){
-	packet_analytics Packet[PACKET_NUM];
+	anomaly_detection Packet;
 	int sock_raw;
 	int saddr_size, data_size;
 	struct sockaddr saddr;
@@ -165,8 +184,9 @@ int main(int argc, char **argv){
 	// Main loop
 	for(int i = 0; i < PACKET_NUM; ++i){
 		read(sock_raw, buffer, sizeof(buffer));
-		Packet[i].read_packet(buffer);
+		Packet.input(i, buffer);
+		std::cout << Packet.output(i, OIP_TLEN) << std::endl;
 	}
-	std::cout << Packet[0].read_data(OTCP_DPORT) << std::endl;
+
 	return 0;
 }
