@@ -43,46 +43,53 @@
 
 
 // Hold property array
-class P_Property{
+class packet_property{
 protected:
 	int property[PROP_NUM];
 public:
+
 	// Input data
-	void InputData(int i, int value){
+	void input_data(int i, int value){
 		// Store input data to property
 		property[i] = value;
 	}
+
+	// Read data
+	int read_data(int i){
+		return property[i];
+	}
+
 };
 
 
 // Data, ML_Function
-class P_Analytics : public P_Property{
+class packet_analytics : public packet_property{
 public:
 
-	P_Analytics() : P_Property(){}
+	packet_analytics() : packet_property(){}
 
 
 
 	// Read TCP packet
-	void ReadTCP(unsigned char *buffer){
+	void read_TCP(unsigned char *buffer){
 		struct tcphdr *tcp_hdr = (struct tcphdr *)buffer;
 		// Input TCP header information
-		InputData(OTCP_SPORT, ntohs(tcp_hdr->source));
-		InputData(OTCP_DPORT, ntohs(tcp_hdr->dest));
+		input_data(OTCP_SPORT, ntohs(tcp_hdr->source));
+		input_data(OTCP_DPORT, ntohs(tcp_hdr->dest));
 	}
 
 
 		
 	// Read IPv4 packet
-	void ReadIPv4(unsigned char *buffer){
+	void read_IPv4(unsigned char *buffer){
 		struct iphdr *ip_hdr = (struct iphdr *)buffer;
 		// Input IP header information
-		InputData(OIP_PROTO, ip_hdr -> protocol);
-		InputData(OIP_TTL, ip_hdr -> ttl);
-		InputData(OIP_TLEN, ntohs(ip_hdr -> tot_len));
-		InputData(OIP_TOS, ip_hdr -> tos);
-		InputData(OIP_FRAGOFF, ip_hdr -> frag_off);
-		InputData(OIP_ID, ntohs(ip_hdr -> id));
+		input_data(OIP_PROTO, ip_hdr -> protocol);
+		input_data(OIP_TTL, ip_hdr -> ttl);
+		input_data(OIP_TLEN, ntohs(ip_hdr -> tot_len));
+		input_data(OIP_TOS, ip_hdr -> tos);
+		input_data(OIP_FRAGOFF, ip_hdr -> frag_off);
+		input_data(OIP_ID, ntohs(ip_hdr -> id));
 
 		switch (ip_hdr -> protocol){
 		case 6:
@@ -100,7 +107,7 @@ public:
 
 
 	// Read arp packet  
-	void ReadARP(unsigned char *buffer){
+	void read_ARP(unsigned char *buffer){
 		struct ether_arp *arp_hdr = (struct ether_arp *)buffer;
 		printf("----------- ARP ----------\n");
 		printf("arp_hrd=%u\n",ntohs(arp_hdr -> arp_hrd));
@@ -113,37 +120,34 @@ public:
 
 
 	// Read raw packet
-	void ReadPacket(unsigned char *buffer){
+	void read_packet(unsigned char *buffer){
 		struct ether_header *eth_hdr = (struct ether_header *)buffer;
 
 		switch(ntohs(eth_hdr->ether_type)){
 
 		// ip packet
 		case 2048:
-		{
-			ReadIPv4(buffer + sizeof(struct ether_header));
+			read_IPv4(buffer + sizeof(struct ether_header));
 			break;
-		}
 
 		// ARP packet
 		case 2054:
-		{
-			ReadARP(buffer + sizeof(struct ether_header));
+			read_ARP(buffer + sizeof(struct ether_header));
 			break;
-		}
 
 		default:
-		{
 			std::cout << "none." << std::endl;
 			break;
-		}
 		}
 	}
 };
 
 
+class anomaly_detection
+
+
 int main(int argc, char **argv){
-	P_Analytics Packet[PACKET_NUM];
+	packet_analytics Packet[PACKET_NUM];
 	int sock_raw;
 	int saddr_size, data_size;
 	struct sockaddr saddr;
@@ -159,9 +163,10 @@ int main(int argc, char **argv){
 	}
 
 	// Main loop
-	for(int i = 0; i < 100; ++i){
+	for(int i = 0; i < PACKET_NUM; ++i){
 		read(sock_raw, buffer, sizeof(buffer));
-		Packet[i].ReadPacket(buffer);
+		Packet[i].read_packet(buffer);
 	}
+	std::cout << Packet[0].read_data(OTCP_DPORT) << std::endl;
 	return 0;
 }
